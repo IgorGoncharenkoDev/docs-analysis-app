@@ -55,7 +55,8 @@ export const analysisTypes: {
   value: AnalysisType
   label: string
   description: string
-  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'>> & RefAttributes<SVGSVGElement>
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'>> &
+    RefAttributes<SVGSVGElement>
 }[] = [
   {
     value: 'summary',
