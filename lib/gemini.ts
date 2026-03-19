@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai'
 
 import { chalkError } from '@/lib/chalk'
+import { AnalysisType } from '@/types'
 
 const API_KEY = process.env.GEMINI_API_KEY
 
@@ -13,7 +14,7 @@ const ai = new GoogleGenAI({
 })
 
 type AnalyzeWithGeminiParams = {
-  analysisType: 'test' | 'summary' | 'qa' | 'sentiment' | 'entities' | 'extract',
+  analysisType: AnalysisType,
   text?: string
 }
 
@@ -22,7 +23,7 @@ export async function analyzeWithGemini({
   analysisType,
 }: AnalyzeWithGeminiParams) {
   try {
-    const prompts: Record<AnalyzeWithGeminiParams['analysisType'], string> = {
+    const prompts: Record<AnalysisType, string> = {
       test: 'What is the result of 10 multiplied by 5?',
       summary: `Please provide a comprehensive summary of the following document. Include main points, key findings, and conclusions:\n\n${text}`,
       qa: `Based on the following document, generate 5 important questions and their answers:\n\n${text}`,
