@@ -786,7 +786,7 @@ export const DocumentScalarFieldEnum = {
   sentiment: 'sentiment',
   organizationId: 'organizationId',
   userId: 'userId',
-  craetedAt: 'craetedAt'
+  createdAt: 'createdAt'
 } as const
 
 export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]

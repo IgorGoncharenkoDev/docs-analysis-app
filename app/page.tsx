@@ -1,7 +1,6 @@
 import { CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-import { features, steps } from '@/lib/data/data'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -9,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { features, steps } from '@/lib/data/data'
 
 export default function Home() {
   return (

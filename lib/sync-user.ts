@@ -11,6 +11,8 @@ export async function syncUser(): Promise<DbUser> {
     const email = clerkUser.emailAddresses[0]?.emailAddress
     if (!email) throw new Error('No user email found')
 
+    const userName = `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim()
+
     // finding the user in db by the clerk user id
     let dbUser = await prisma.user.findUnique({
       where: {
@@ -26,7 +28,7 @@ export async function syncUser(): Promise<DbUser> {
         },
         data: {
           email,
-          name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`,
+          name: userName || dbUser.name,
         },
       } )
     }
@@ -36,7 +38,7 @@ export async function syncUser(): Promise<DbUser> {
         data: {
           clerkUserId: clerkUser.id,
           email,
-          name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`,
+          name: userName.length ? userName : 'User',
         },
       } )
     }

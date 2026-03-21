@@ -45,7 +45,7 @@ export type DocumentMinAggregateOutputType = {
   sentiment: string | null
   organizationId: string | null
   userId: string | null
-  craetedAt: Date | null
+  createdAt: Date | null
 }
 
 export type DocumentMaxAggregateOutputType = {
@@ -59,7 +59,7 @@ export type DocumentMaxAggregateOutputType = {
   sentiment: string | null
   organizationId: string | null
   userId: string | null
-  craetedAt: Date | null
+  createdAt: Date | null
 }
 
 export type DocumentCountAggregateOutputType = {
@@ -74,7 +74,7 @@ export type DocumentCountAggregateOutputType = {
   sentiment: number
   organizationId: number
   userId: number
-  craetedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -98,7 +98,7 @@ export type DocumentMinAggregateInputType = {
   sentiment?: true
   organizationId?: true
   userId?: true
-  craetedAt?: true
+  createdAt?: true
 }
 
 export type DocumentMaxAggregateInputType = {
@@ -112,7 +112,7 @@ export type DocumentMaxAggregateInputType = {
   sentiment?: true
   organizationId?: true
   userId?: true
-  craetedAt?: true
+  createdAt?: true
 }
 
 export type DocumentCountAggregateInputType = {
@@ -127,7 +127,7 @@ export type DocumentCountAggregateInputType = {
   sentiment?: true
   organizationId?: true
   userId?: true
-  craetedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -229,7 +229,7 @@ export type DocumentGroupByOutputType = {
   sentiment: string | null
   organizationId: string
   userId: string
-  craetedAt: Date
+  createdAt: Date
   _count: DocumentCountAggregateOutputType | null
   _avg: DocumentAvgAggregateOutputType | null
   _sum: DocumentSumAggregateOutputType | null
@@ -267,7 +267,7 @@ export type DocumentWhereInput = {
   sentiment?: Prisma.StringNullableFilter<"Document"> | string | null
   organizationId?: Prisma.StringFilter<"Document"> | string
   userId?: Prisma.StringFilter<"Document"> | string
-  craetedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -284,7 +284,7 @@ export type DocumentOrderByWithRelationInput = {
   sentiment?: Prisma.SortOrderInput | Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  craetedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
 }
@@ -304,7 +304,7 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   sentiment?: Prisma.StringNullableFilter<"Document"> | string | null
   organizationId?: Prisma.StringFilter<"Document"> | string
   userId?: Prisma.StringFilter<"Document"> | string
-  craetedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -321,7 +321,7 @@ export type DocumentOrderByWithAggregationInput = {
   sentiment?: Prisma.SortOrderInput | Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  craetedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.DocumentCountOrderByAggregateInput
   _avg?: Prisma.DocumentAvgOrderByAggregateInput
   _max?: Prisma.DocumentMaxOrderByAggregateInput
@@ -344,7 +344,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
   sentiment?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   organizationId?: Prisma.StringWithAggregatesFilter<"Document"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Document"> | string
-  craetedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
 }
 
 export type DocumentCreateInput = {
@@ -357,7 +357,7 @@ export type DocumentCreateInput = {
   aiSummary?: string | null
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
-  craetedAt?: Date | string
+  createdAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutDocumentsInput
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
 }
@@ -374,7 +374,7 @@ export type DocumentUncheckedCreateInput = {
   sentiment?: string | null
   organizationId: string
   userId: string
-  craetedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type DocumentUpdateInput = {
@@ -387,7 +387,7 @@ export type DocumentUpdateInput = {
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutDocumentsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
 }
@@ -404,7 +404,7 @@ export type DocumentUncheckedUpdateInput = {
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentCreateManyInput = {
@@ -419,7 +419,7 @@ export type DocumentCreateManyInput = {
   sentiment?: string | null
   organizationId: string
   userId: string
-  craetedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type DocumentUpdateManyMutationInput = {
@@ -432,7 +432,7 @@ export type DocumentUpdateManyMutationInput = {
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentUncheckedUpdateManyInput = {
@@ -447,7 +447,7 @@ export type DocumentUncheckedUpdateManyInput = {
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentListRelationFilter = {
@@ -480,7 +480,7 @@ export type DocumentCountOrderByAggregateInput = {
   sentiment?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  craetedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type DocumentAvgOrderByAggregateInput = {
@@ -498,7 +498,7 @@ export type DocumentMaxOrderByAggregateInput = {
   sentiment?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  craetedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type DocumentMinOrderByAggregateInput = {
@@ -512,7 +512,7 @@ export type DocumentMinOrderByAggregateInput = {
   sentiment?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  craetedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type DocumentSumOrderByAggregateInput = {
@@ -630,7 +630,7 @@ export type DocumentCreateWithoutUserInput = {
   aiSummary?: string | null
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
-  craetedAt?: Date | string
+  createdAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutDocumentsInput
 }
 
@@ -645,7 +645,7 @@ export type DocumentUncheckedCreateWithoutUserInput = {
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
   organizationId: string
-  craetedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type DocumentCreateOrConnectWithoutUserInput = {
@@ -689,7 +689,7 @@ export type DocumentScalarWhereInput = {
   sentiment?: Prisma.StringNullableFilter<"Document"> | string | null
   organizationId?: Prisma.StringFilter<"Document"> | string
   userId?: Prisma.StringFilter<"Document"> | string
-  craetedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
 }
 
 export type DocumentCreateWithoutOrganizationInput = {
@@ -702,7 +702,7 @@ export type DocumentCreateWithoutOrganizationInput = {
   aiSummary?: string | null
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
-  craetedAt?: Date | string
+  createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
 }
 
@@ -717,7 +717,7 @@ export type DocumentUncheckedCreateWithoutOrganizationInput = {
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
   userId: string
-  craetedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type DocumentCreateOrConnectWithoutOrganizationInput = {
@@ -757,7 +757,7 @@ export type DocumentCreateManyUserInput = {
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
   organizationId: string
-  craetedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type DocumentUpdateWithoutUserInput = {
@@ -770,7 +770,7 @@ export type DocumentUpdateWithoutUserInput = {
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutDocumentsNestedInput
 }
 
@@ -785,7 +785,7 @@ export type DocumentUncheckedUpdateWithoutUserInput = {
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentUncheckedUpdateManyWithoutUserInput = {
@@ -799,7 +799,7 @@ export type DocumentUncheckedUpdateManyWithoutUserInput = {
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentCreateManyOrganizationInput = {
@@ -813,7 +813,7 @@ export type DocumentCreateManyOrganizationInput = {
   aiKeywords?: Prisma.DocumentCreateaiKeywordsInput | string[]
   sentiment?: string | null
   userId: string
-  craetedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type DocumentUpdateWithoutOrganizationInput = {
@@ -826,7 +826,7 @@ export type DocumentUpdateWithoutOrganizationInput = {
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
 }
 
@@ -841,7 +841,7 @@ export type DocumentUncheckedUpdateWithoutOrganizationInput = {
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentUncheckedUpdateManyWithoutOrganizationInput = {
@@ -855,7 +855,7 @@ export type DocumentUncheckedUpdateManyWithoutOrganizationInput = {
   aiKeywords?: Prisma.DocumentUpdateaiKeywordsInput | string[]
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  craetedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -872,7 +872,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   sentiment?: boolean
   organizationId?: boolean
   userId?: boolean
-  craetedAt?: boolean
+  createdAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -889,7 +889,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   sentiment?: boolean
   organizationId?: boolean
   userId?: boolean
-  craetedAt?: boolean
+  createdAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -906,7 +906,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   sentiment?: boolean
   organizationId?: boolean
   userId?: boolean
-  craetedAt?: boolean
+  createdAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -923,10 +923,10 @@ export type DocumentSelectScalar = {
   sentiment?: boolean
   organizationId?: boolean
   userId?: boolean
-  craetedAt?: boolean
+  createdAt?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "content" | "fileUrl" | "fileSize" | "fileType" | "aiSummary" | "aiKeywords" | "sentiment" | "organizationId" | "userId" | "craetedAt", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "content" | "fileUrl" | "fileSize" | "fileType" | "aiSummary" | "aiKeywords" | "sentiment" | "organizationId" | "userId" | "createdAt", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -958,7 +958,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     sentiment: string | null
     organizationId: string
     userId: string
-    craetedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["document"]>
   composites: {}
 }
@@ -1395,7 +1395,7 @@ export interface DocumentFieldRefs {
   readonly sentiment: Prisma.FieldRef<"Document", 'String'>
   readonly organizationId: Prisma.FieldRef<"Document", 'String'>
   readonly userId: Prisma.FieldRef<"Document", 'String'>
-  readonly craetedAt: Prisma.FieldRef<"Document", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"Document", 'DateTime'>
 }
     
 
