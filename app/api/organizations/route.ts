@@ -8,7 +8,7 @@ import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
 import { getClerkAuth } from '@/lib/getClerkAuth'
 import { validateRequest } from '@/lib/validation/validateRequest'
 import { ApiResponse } from '@/types/api'
-import { RegisterOrganizationDTO } from '@/types/organization'
+import { RegisterOrganizationDTO } from '@/types/dto'
 
 export async function POST(
   req: Request,

@@ -7,7 +7,7 @@ import { getAuthorizedDocument } from '@/lib/db/queries/document/getAuthorizedDo
 import { analyzeWithGemini } from '@/lib/gemini'
 import { getClerkAuth } from '@/lib/getClerkAuth'
 import { validateRequest } from '@/lib/validation/validateRequest'
-import { AnalysisReturnDTO } from '@/types/analysis'
+import { AnalysisReturnDTO } from '@/types/dto'
 import { ApiResponse } from '@/types/api'
 
 export async function POST(
