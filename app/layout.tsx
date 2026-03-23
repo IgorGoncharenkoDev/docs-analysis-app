@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google'
 
 import { LayoutFooter } from '@/components/layout/footer'
 import { LayoutHeader } from '@/components/layout/header/header'
-
 import { syncUser } from '@/lib/sync-user'
 
 import './globals.css'

@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import slugify from 'slugify'
 
@@ -6,6 +5,7 @@ import { registerOrganizationSchema } from '@/app/api/schemas/organization.schem
 import { chalkError } from '@/lib/chalk'
 import { prisma } from '@/lib/db/prisma'
 import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
+import { getClerkAuth } from '@/lib/getClerkAuth'
 import { validateRequest } from '@/lib/validation/validateRequest'
 import { ApiResponse } from '@/types/api'
 import { RegisterOrganizationDTO } from '@/types/organization'
@@ -15,14 +15,14 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse<RegisterOrganizationDTO>>> {
   // outer 'try-catch' handles unexpected errors
   try {
-    const { userId } = await auth()
-
-    if (!userId) {
+    const authResult = await getClerkAuth()
+    if (!authResult.ok) {
       return NextResponse.json(
         { status: 'error', message: 'Unauthorized' },
-        { status: 401 },
+        { status: 401 }
       )
     }
+    const userId = authResult.userId
 
     const body = await req.json()
 

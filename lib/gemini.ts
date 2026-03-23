@@ -18,10 +18,14 @@ type AnalyzeWithGeminiParams = {
   text?: string
 }
 
+type GeminiResult =
+  | { ok: true; data: string }
+  | { ok: false; message: string }
+
 export async function analyzeWithGemini({
   text,
   analysisType,
-}: AnalyzeWithGeminiParams) {
+}: AnalyzeWithGeminiParams): Promise<GeminiResult> {
   try {
     const prompts: Record<AnalysisType, string> = {
       test: 'What is the result of 10 multiplied by 5?',
@@ -36,9 +40,23 @@ export async function analyzeWithGemini({
       model: 'gemini-3-flash-preview',
       contents: prompts[analysisType],
     })
-    return response.text
+
+    if (!response.text) {
+      return {
+        ok: false,
+        message: 'Empty response from Gemini',
+      }
+    }
+
+    return {
+      ok: true,
+      data: response.text,
+    }
   } catch (error) {
     console.log(chalkError('Error analyzing with Gemini:', error))
-    return 'Could not analyze text. Please try again later.'
+    return {
+      ok: false,
+      message: 'Failed to analyze with Gemini',
+    }
   }
 }
