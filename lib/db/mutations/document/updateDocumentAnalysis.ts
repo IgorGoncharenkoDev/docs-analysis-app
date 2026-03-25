@@ -1,11 +1,12 @@
 import { DocumentGetPayload } from '@/generated/prisma/models/Document'
 import { prisma } from '@/lib/db/prisma'
 import { safeDocumentSelect } from '@/lib/db/selects/document.select'
+import { AnalysisType } from '@/types'
 
 type Params = {
   documentId: string
   summary: string
-  analysisType: string
+  analysisType: AnalysisType
 }
 
 type Return = DocumentGetPayload<{

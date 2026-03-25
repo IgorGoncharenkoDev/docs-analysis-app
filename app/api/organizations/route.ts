@@ -2,29 +2,32 @@ import { NextResponse } from 'next/server'
 import slugify from 'slugify'
 
 import { registerOrganizationSchema } from '@/app/api/schemas/organization.schema'
-import { chalkError } from '@/lib/chalk'
+import { requireAuth } from '@/lib/auth/requireAuth'
 import { prisma } from '@/lib/db/prisma'
 import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
-import { getClerkAuth } from '@/lib/getClerkAuth'
+import { AppError } from '@/lib/errors/AppError'
+import { handleRouteError } from '@/lib/errors/handleRouteError'
 import { validateRequest } from '@/lib/validation/validateRequest'
 import { ApiResponse } from '@/types/api'
 import { RegisterOrganizationDTO } from '@/types/dto'
 
 export async function POST(
   req: Request,
-): Promise<NextResponse<ApiResponse<RegisterOrganizationDTO>>> {
+): Promise<NextResponse<ApiResponse<RegisterOrganizationDTO | null>>> {
   // outer 'try-catch' handles unexpected errors
   try {
-    const authResult = await getClerkAuth()
-    if (!authResult.ok) {
-      return NextResponse.json(
-        { status: 'error', message: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-    const userId = authResult.userId
+    const userId = await requireAuth()
 
-    const body = await req.json()
+    let body: unknown
+
+    try {
+      body = await req.json()
+    } catch {
+      throw new AppError({
+        type: 'bad_request',
+        message: 'Invalid JSON body',
+      })
+    }
 
     const validation = validateRequest({
       data: body,
@@ -50,13 +53,13 @@ export async function POST(
     })
 
     if (!user) {
-      return NextResponse.json(
-        { status: 'error', message: 'Unauthorized' },
-        { status: 401 },
-      )
+      throw new AppError({
+        type: 'unauthorized',
+        message: 'User not found in DB',
+      })
     }
 
-    let organization: RegisterOrganizationDTO
+    let organization!: RegisterOrganizationDTO
 
     // inner 'try-catch' handles expected failure(s)
     try {
@@ -81,57 +84,39 @@ export async function POST(
     } catch (error) {
       // expected failure: unique constraint
       if (
-        typeof (error as any)?.code === 'string' && // eslint-disable-line @typescript-eslint/no-explicit-any
-        (error as any).code === 'P2002' // eslint-disable-line @typescript-eslint/no-explicit-any
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'P2002' // P2002 can be caused by slug OR clerkOrgId
       ) {
-        // P2002 can be caused by slug OR clerkOrgId
-
         const existing = await prisma.organization.findUnique({
           where: { clerkOrgId },
         })
 
         if (existing) {
-          return NextResponse.json({
-            status: 'success',
-            data: {
-              id: existing.id,
-              clerkOrgId: existing.clerkOrgId,
-              name: existing.name,
-              slug: existing.slug,
-            },
-            message: 'Organization already exists'
-          } satisfies ApiResponse<RegisterOrganizationDTO>)
+          organization = {
+            id: existing.id,
+            clerkOrgId: existing.clerkOrgId,
+            name: existing.name,
+            slug: existing.slug,
+          }
+        } else {
+          throw new AppError({
+            type: 'conflict',
+            message: 'Slug is already taken',
+          })
         }
-
-        // ...likely slug conflict
-        return NextResponse.json({
-          status: 'error',
-          message: 'Slug is already taken. Please choose a different slug.',
-        }, { status: 400 })
+      } else {
+        throw error // handles error to the outer 'catch' block
       }
-
-      throw error // handles error to the outer 'catch' block
     }
 
     return NextResponse.json({
       status: 'success',
-      data: {
-        id: organization.id,
-        clerkOrgId: organization.clerkOrgId,
-        name: organization.name,
-        slug: organization.slug,
-      },
+      data: organization,
       message: 'Organization created successfully',
     } satisfies ApiResponse<RegisterOrganizationDTO>)
   } catch (error) {
-    console.log(chalkError('Error creating organization:', error))
-
-    return NextResponse.json(
-      {
-        status: 'error',
-        message: 'Unknown error occurred while creating organization. Please try again later.',
-      },
-      { status: 500 },
-    )
+    return handleRouteError(error)
   }
 }

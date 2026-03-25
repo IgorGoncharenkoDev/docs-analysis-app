@@ -17,7 +17,8 @@ export async function getClerkAuth(): Promise<AuthResult> {
       ok: true,
       userId,
     }
-  } catch {
+  } catch (error) {
+    console.error('Clerk auth error:', error)
     return { ok: false }
   }
 }

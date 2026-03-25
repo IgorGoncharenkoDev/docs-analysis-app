@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
 
-import { deleteFromBlob } from '@/lib/blob'
+import { deleteDocumentSchema } from '@/app/api/schemas/document.schema'
+import { requireAuth } from '@/lib/auth/requireAuth'
+import { deleteFromBlob } from '@/lib/blob/blob'
 import { chalkError } from '@/lib/chalk'
 import { prisma } from '@/lib/db/prisma'
 import { getDocumentToDelete } from '@/lib/db/queries/document/getDocumentToDelete'
-import { getClerkAuth } from '@/lib/getClerkAuth'
+import { AppError } from '@/lib/errors/AppError'
+import { handleRouteError } from '@/lib/errors/handleRouteError'
+import { validateRequest } from '@/lib/validation/validateRequest'
 import { ApiResponse } from '@/types/api'
 
 type RouteParams = {
@@ -18,59 +22,52 @@ export async function DELETE(
   { params }: RouteParams,
 ): Promise<NextResponse<ApiResponse<null>>> {
   try {
-    const authResult = await getClerkAuth()
-    if (!authResult.ok) {
-      return NextResponse.json(
-        { status: 'error', message: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
-    const userId = authResult.userId
+    const userId = await requireAuth()
+    
     const { documentId } = params
+
+    const validation = validateRequest({
+      data: { documentId },
+      schema: deleteDocumentSchema,
+    })
+
+    if (!validation.success) return validation.response
+
+    const { documentId: validatedDocumentId } = validation.data
 
     // get the document only if the user is authorized to access it
     const document = await getDocumentToDelete({
-      documentId,
+      documentId: validatedDocumentId,
       userId,
     })
 
     if (!document) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          message: 'Document not found',
-        },
-        { status: 404 },
-      )
+      throw new AppError({
+        type: 'not_found',
+        message: 'Document not found',
+      })
     }
+
+    // delete the file from db (before deleting the file from blob to avoid race conditions)
+    await prisma.document.delete({
+      where: { id: document.id }, // using trusted 'id' from DB, not 'documentId' from the request
+    })
 
     // delete the file from Vercel blob if it exists
     if (document.fileUrl) {
       try {
         await deleteFromBlob({ url: document.fileUrl })
       } catch (error) {
-        console.log(chalkError('Error deleting file from blob:', error))
+        console.error(chalkError('Blob deletion failed:'), error)
       }
     }
-
-    // delete the file from db
-    await prisma.document.delete({
-      where: { id: document.id }, // using trusted 'id' from DB, not 'documentId' from the request
-    })
 
     return NextResponse.json({
       status: 'success',
       data: null,
+      message: 'Document deleted successfully',
     })
   } catch (error) {
-    console.log(chalkError('Error deleting document:', error))
-    return NextResponse.json(
-      {
-        status: 'error',
-        message:
-          'Unknown error occurred while deleting document. Please try again later.',
-      },
-      { status: 500 },
-    )
+    return handleRouteError(error)
   }
 }

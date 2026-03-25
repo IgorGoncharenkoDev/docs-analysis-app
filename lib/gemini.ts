@@ -53,7 +53,7 @@ export async function analyzeWithGemini({
       data: response.text,
     }
   } catch (error) {
-    console.log(chalkError('Error analyzing with Gemini:', error))
+    console.error(chalkError('Error analyzing with Gemini:'), error)
     return {
       ok: false,
       message: 'Failed to analyze with Gemini',

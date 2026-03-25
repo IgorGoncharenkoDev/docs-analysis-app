@@ -1,6 +1,6 @@
 import { del, put } from '@vercel/blob'
 
-import { chalkError } from '@/lib/chalk'
+import { AppError } from '@/lib/errors/AppError'
 
 type UploadToBlobParams = {
   file: File
@@ -28,8 +28,10 @@ export async function uploadToBlob({
       url: blob.url,
     }
   } catch (error) {
-    console.log(chalkError('Error uploading to blob:', error))
-    throw Error('Error uploading to blob')
+    throw new AppError({
+      type: 'bad_request',
+      message: 'Failed to upload file',
+    })
   }
 }
 
@@ -47,7 +49,9 @@ export async function deleteFromBlob({
       token: process.env.BLOB_READ_WRITE_TOKEN,
     })
   } catch (error) {
-    console.log(chalkError('Error deleting from blob:', error))
-    throw Error('Error deleting from blob')
+    throw new AppError({
+      type: 'bad_request',
+      message: 'Failed to delete file from blob',
+    })
   }
 }

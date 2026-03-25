@@ -1,29 +1,33 @@
 import { NextResponse } from 'next/server'
 
 import { analyzeSchema } from '@/app/api/schemas/analyze.schema'
-import { chalkError } from '@/lib/chalk'
+import { requireAuth } from '@/lib/auth/requireAuth'
 import { updateDocumentAnalysis } from '@/lib/db/mutations/document/updateDocumentAnalysis'
 import { getAuthorizedDocument } from '@/lib/db/queries/document/getAuthorizedDocument'
+import { AppError } from '@/lib/errors/AppError'
+import { handleRouteError } from '@/lib/errors/handleRouteError'
 import { analyzeWithGemini } from '@/lib/gemini'
-import { getClerkAuth } from '@/lib/getClerkAuth'
 import { validateRequest } from '@/lib/validation/validateRequest'
-import { AnalysisReturnDTO } from '@/types/dto'
 import { ApiResponse } from '@/types/api'
+import { AnalysisReturnDTO } from '@/types/dto'
 
 export async function POST(
   req: Request,
-): Promise<NextResponse<ApiResponse<AnalysisReturnDTO>>> {
+): Promise<NextResponse<ApiResponse<AnalysisReturnDTO | null>>> {
   try {
-    const authResult = await getClerkAuth()
-    if (!authResult.ok) {
-      return NextResponse.json(
-        { status: 'error', message: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
-    const userId = authResult.userId
+    const userId = await requireAuth()
 
-    const body = await req.json()
+    let body: unknown
+
+    try {
+      body = await req.json()
+    } catch {
+      throw new AppError({
+        type: 'bad_request',
+        message: 'Invalid JSON body',
+      })
+    }
+
     const validation = validateRequest({
       data: body,
       schema: analyzeSchema,
@@ -39,43 +43,45 @@ export async function POST(
     })
 
     if (!document) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          message: 'Document not found',
-        },
-        { status: 404 },
-      )
+      throw new AppError({
+        type: 'not_found',
+        message: 'Document not found',
+      })
     }
 
     // getting the content of the doc
     if (!document.content) {
-      return NextResponse.json(
-        { status: 'error', message: 'Document content is empty' },
-        { status: 400 }
-      )
+      throw new AppError({
+        type: 'bad_request',
+        message: 'Document content is empty',
+      })
     }
 
-    const content = document.content
+    if (document.content.length > 20000) {
+      throw new AppError({
+        type: 'bad_request',
+        message: 'Document too large to analyze',
+      })
+    }
 
     // analysis using Gemini
     const geminiResult = await analyzeWithGemini({
-      text: content,
+      text: document.content,
       analysisType,
     })
 
     if (!geminiResult.ok) {
-      return NextResponse.json(
-        { status: 'error', message: geminiResult.message },
-        { status: 500 }
-      )
+      throw new AppError({
+        type: 'external_error',
+        message: geminiResult.message,
+      })
     }
 
     const summary = geminiResult.data
 
     // save the result into db
     const updatedDocument = await updateDocumentAnalysis({
-      documentId,
+      documentId: document.id,
       summary,
       analysisType,
     })
@@ -85,17 +91,9 @@ export async function POST(
       data: {
         summary,
         document: updatedDocument,
-      }
+      },
     } satisfies ApiResponse<AnalysisReturnDTO>)
   } catch (error) {
-    console.log(chalkError('Error analyzing document:', error))
-
-    return NextResponse.json(
-      {
-        status: 'error',
-        message: 'Unknown error occurred while analyzing document. Please try again later.',
-      },
-      { status: 500 },
-    )
+    return handleRouteError(error)
   }
 }
