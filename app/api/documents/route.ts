@@ -1,17 +1,22 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-import { createDocumentSchema } from '@/app/api/schemas/document.schema'
+import {
+  createDocumentSchema,
+  getDocumentsSchema,
+} from '@/app/api/schemas/document.schema'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { deleteFromBlob } from '@/lib/blob/blob'
 import { processFileUpload } from '@/lib/blob/uploadFile'
 import { createDocument } from '@/lib/db/queries/document/createDocument'
-import { getAuthorizedUserForOrg } from '@/lib/db/queries/document/getAuthorizedUserForOrg'
+import { getDocumentsForOrganization } from '@/lib/db/queries/document/getDocumentsForOrganization'
+import { getAuthorizedUserForOrg } from '@/lib/db/queries/getAuthorizedUserForOrg'
 import { AppError } from '@/lib/errors/AppError'
 import { handleRouteError } from '@/lib/errors/handleRouteError'
 import { parseFormData } from '@/lib/validation/parseFormData'
+import { validateRequest } from '@/lib/validation/validateRequest'
 import { ApiResponse } from '@/types/api'
 import { DocumentFileData } from '@/types/document'
-import { CreateDocumentDTO } from '@/types/dto'
+import { CreateDocumentDTO, GetDocumentDTO } from '@/types/dto'
 
 export async function POST(
   req: Request,
@@ -86,6 +91,60 @@ export async function POST(
         uploadedBy: { name: document.user.name },
       },
       message: 'Document uploaded successfully',
+    })
+  } catch (error) {
+    return handleRouteError(error)
+  }
+}
+
+type GetDocumentsReturn = {
+  documents: GetDocumentDTO[]
+  documentsCount: number
+  organization: {
+    id: string
+    name: string
+  }
+}
+
+export async function GET(
+  req: NextRequest,
+): Promise<NextResponse<ApiResponse<GetDocumentsReturn | null>>> {
+  try {
+    const userId = await requireAuth()
+
+    const { searchParams } = req.nextUrl
+    // clerk org id
+    const organizationId = searchParams.get('organizationId')
+
+    const validation = validateRequest({
+      data: { organizationId },
+      schema: getDocumentsSchema,
+    })
+
+    if (!validation.success) return validation.response
+
+    const { organizationId: validatedOrganizationId } = validation.data
+
+    const { user, organization } = await getAuthorizedUserForOrg({
+      clerkOrgId: validatedOrganizationId,
+      clerkUserId: userId,
+    })
+
+    const documents = await getDocumentsForOrganization({
+      clerkUserId: user.id,
+      organizationId: organization.clerkOrgId,
+    })
+
+    return NextResponse.json({
+      status: 'success',
+      data: {
+        documents,
+        documentsCount: documents.length,
+        organization: {
+          id: organization.id,
+          name: organization.name,
+        },
+      },
     })
   } catch (error) {
     return handleRouteError(error)

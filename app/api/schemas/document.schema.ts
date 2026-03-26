@@ -26,3 +26,5 @@ export const createDocumentSchema = z
 export const deleteDocumentSchema = z.object({
   documentId: z.cuid(),
 })
+
+export const getDocumentsSchema = z.object({ organizationId: z.cuid() })

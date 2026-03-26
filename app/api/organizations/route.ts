@@ -4,6 +4,7 @@ import slugify from 'slugify'
 import { registerOrganizationSchema } from '@/app/api/schemas/organization.schema'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { prisma } from '@/lib/db/prisma'
+import { getOrganizationById } from '@/lib/db/queries/organizations/getOrganizationById'
 import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
 import { AppError } from '@/lib/errors/AppError'
 import { handleRouteError } from '@/lib/errors/handleRouteError'
@@ -89,9 +90,7 @@ export async function POST(
         'code' in error &&
         error.code === 'P2002' // P2002 can be caused by slug OR clerkOrgId
       ) {
-        const existing = await prisma.organization.findUnique({
-          where: { clerkOrgId },
-        })
+        const existing = await getOrganizationById({ clerkOrgId })
 
         if (existing) {
           organization = {

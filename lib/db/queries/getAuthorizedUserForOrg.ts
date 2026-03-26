@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma'
+import { getOrganizationById } from '@/lib/db/queries/organizations/getOrganizationById'
 import { AppError } from '@/lib/errors/AppError'
 
 type GetAuthorizedUserForOrgParams = {
@@ -10,9 +11,8 @@ export async function getAuthorizedUserForOrg({
   clerkOrgId,
   clerkUserId,
 }: GetAuthorizedUserForOrgParams) {
-  const organization = await prisma.organization.findUnique({
-    where: { clerkOrgId },
-  })
+  const organization = await getOrganizationById({ clerkOrgId })
+  
   if (!organization) {
     throw new AppError({ type: 'not_found', message: 'Organization not found' })
   }

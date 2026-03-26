@@ -1,6 +1,9 @@
 import { DocumentGetPayload } from '@/generated/prisma/models/Document'
 import { OrganizationGetPayload } from '@/generated/prisma/models/Organization'
-import { safeDocumentSelect } from '@/lib/db/selects/document.select'
+import {
+  documentForOrganizationSelect,
+  safeDocumentSelect,
+} from '@/lib/db/selects/document.select'
 import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
 import { DocumentWithRelations } from '@/types/document'
 
@@ -24,3 +27,5 @@ export type CreateDocumentDTO = {
   organization: DocumentWithRelations['organization']
   uploadedBy: { name: DocumentWithRelations['user']['name'] | null }
 }
+
+export type GetDocumentDTO = DocumentGetPayload<typeof documentForOrganizationSelect>
