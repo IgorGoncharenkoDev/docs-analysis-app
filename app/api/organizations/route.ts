@@ -1,10 +1,11 @@
+import { clerkClient } from '@clerk/nextjs/server'
+import { PrismaClientKnownRequestError } from '@prisma/client-runtime-utils'
 import { NextResponse } from 'next/server'
 import slugify from 'slugify'
 
 import { registerOrganizationSchema } from '@/app/api/schemas/organization.schema'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { prisma } from '@/lib/db/prisma'
-import { getOrganizationById } from '@/lib/db/queries/organizations/getOrganizationById'
 import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
 import { AppError } from '@/lib/errors/AppError'
 import { handleRouteError } from '@/lib/errors/handleRouteError'
@@ -20,7 +21,6 @@ export async function POST(
     const userId = await requireAuth()
 
     let body: unknown
-
     try {
       body = await req.json()
     } catch {
@@ -37,7 +37,7 @@ export async function POST(
 
     if (!validation.success) return validation.response
 
-    const { clerkOrgId, name, slug } = validation.data
+    const { name, slug } = validation.data
 
     const slugified = slugify(slug, {
       lower: true,
@@ -60,14 +60,14 @@ export async function POST(
       })
     }
 
-    let organization!: RegisterOrganizationDTO
+    // reserving a new organization in DB (before creating one in Clerk)
+    let organization: { id: string, clerkOrgId: string | null }
 
-    // inner 'try-catch' handles expected failure(s)
     try {
       organization = await prisma.$transaction(async (tx) => {
         // creating a new organization
         const org = await tx.organization.create({
-          data: { clerkOrgId, name, slug: slugified },
+          data: { name, slug: slugified, status: 'PENDING' },
           select: partialOrganizationSelect,
         })
 
@@ -84,37 +84,83 @@ export async function POST(
       })
     } catch (error) {
       // expected failure: unique constraint
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        error.code === 'P2002' // P2002 can be caused by slug OR clerkOrgId
-      ) {
-        const existing = await getOrganizationById({ clerkOrgId })
+      const isUniqueError =
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
 
-        if (existing) {
-          organization = {
-            id: existing.id,
-            clerkOrgId: existing.clerkOrgId,
-            name: existing.name,
-            slug: existing.slug,
-          }
-        } else {
+      if (isUniqueError) {
+        const target = (error.meta?.target ?? []) as string[]
+
+        if (target.includes('name')) {
+          throw new AppError({
+            type: 'conflict',
+            message: 'Organization name is already taken',
+          })
+        }
+
+        if (target.includes('slug')) {
           throw new AppError({
             type: 'conflict',
             message: 'Slug is already taken',
           })
         }
-      } else {
-        throw error // handles error to the outer 'catch' block
+      }
+
+      throw error
+    }
+
+    let clerkOrg
+
+    if (!organization.clerkOrgId) {
+      // creating a new organization in Clerk
+      const cc = await clerkClient()
+
+      try {
+        clerkOrg = await cc.organizations.createOrganization({
+          name,
+          slug: slugified,
+        })
+      } catch (error) {
+        // marking as FAILED (for retry later)
+        await prisma.organization.update({
+          where: { id: organization.id },
+          data: { status: 'FAILED' },
+        })
+
+        console.error('Clerk org creation failed', {
+          orgId: organization.id,
+          error,
+        })
+
+        throw new AppError({
+          type: 'external_error',
+          message: 'Failed to create organization in Clerk',
+        })
       }
     }
 
+    if (!clerkOrg?.id) {
+      throw new AppError({
+        type: 'external_error',
+        message: 'Invalid Clerk response',
+      })
+    }
+
+    // finalizing in db
+    const finalized = await prisma.organization.update({
+      where: { id: organization.id },
+      data: {
+        clerkOrgId: clerkOrg.id,
+        status: 'ACTIVE',
+      },
+      select: partialOrganizationSelect,
+    })
+
     return NextResponse.json({
       status: 'success',
-      data: organization,
+      data: finalized,
       message: 'Organization created successfully',
-    } satisfies ApiResponse<RegisterOrganizationDTO>)
+    })
   } catch (error) {
     return handleRouteError(error)
   }

@@ -20,12 +20,19 @@ model User {
   @@map("users")
 }
 
+enum OrganizationStatus {
+  ACTIVE
+  FAILED
+  PENDING
+}
+
 model Organization {
-  id         String   @id @default(cuid())
-  clerkOrgId String   @unique
-  name       String
-  slug       String   @unique
-  createdAt  DateTime @default(now())
+  id         String             @id @default(cuid())
+  clerkOrgId String?            @unique
+  name       String             @unique
+  slug       String             @unique
+  status     OrganizationStatus @default(PENDING)
+  createdAt  DateTime           @default(now())
 
   members   OrganizationMember[]
   documents Document[]

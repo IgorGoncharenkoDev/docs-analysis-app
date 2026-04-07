@@ -15,7 +15,9 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { apiClient, unwrapApiResult } from '@/lib/apiClient'
 import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
+import { RegisterOrganizationDTO } from '@/types/dto'
 
 export default function SelectOrgPage() {
   const router = useRouter()
@@ -42,15 +44,11 @@ export default function SelectOrgPage() {
     id: string
     slug: string | null
   }) => {
-    console.log('org |>', organization.id);
-
-    if (isSwitching) return
+    if (isSwitching || !isOrganizationListLoaded) return
     setIsSwitching(true)
 
     try {
-      if (setActive) {
-        await setActive({ organization: organization.id })
-      }
+      await setActive({ organization: organization.id })
 
       if (!organization.slug) {
         toast.error('Organization slug missing')
@@ -61,8 +59,7 @@ export default function SelectOrgPage() {
     } catch (error) {
       console.error('Error switching organization:', error)
       toast.error('Failed to switch organization')
-    }
-    finally {
+    } finally {
       setIsSwitching(false)
     }
   }
@@ -82,6 +79,8 @@ export default function SelectOrgPage() {
   }
 
   const handleCreateOrganization = async () => {
+    if (!isOrganizationListLoaded) return
+
     if (!orgName.trim()) {
       toast.error('Organization name is required')
       return
@@ -89,52 +88,30 @@ export default function SelectOrgPage() {
     setIsCreating(true)
 
     try {
-      // create a new organization in clerk
-      if (!createOrganization) {
-        throw new Error('Cannot create organization, please try again later')
+      const result = unwrapApiResult(
+        await apiClient.organizations.post({
+          name: orgName.trim(),
+          slug: orgName
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+        }),
+      )
+
+      if (!result.ok) {
+        throw new Error(result.error || 'Failed to save organization to database')
       }
 
-      const newOrganization = await createOrganization({
-        name: orgName.trim(),
-      })
+      const newOrganization = result.data
 
-      if (!newOrganization) {
-        throw new Error('Failed to create organization')
-      }
+      // set new org as active org
+      await setActive({ organization: newOrganization.id })
 
       toast.success(`Organization ${orgName.trim()} created successfully`)
       setOrgName('')
 
-      // save new organization to db
-      try {
-        // TODO i |> create client api
-        const response = await fetch('/api/organizations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: orgName.trim(),
-            clerkOrganizationId: newOrganization.id,
-            slug: newOrganization.slug || orgName.trim().toLowerCase().replace(/\s+/g, '-')
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to save organization to database')
-        }
-      } catch (error) {
-        console.warn('Error saving organization to database:', error)
-      }
-
-      // set as active org
-      if (setActive) {
-        await setActive({ organization: newOrganization.id })
-      }
-
-      // creating a delay to refresh the list
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      refreshOrganization()
+      await refreshOrganization()
       router.refresh()
     } catch (error) {
       console.error('Error creating organization:', error)

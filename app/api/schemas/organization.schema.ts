@@ -1,7 +1,8 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const registerOrganizationSchema = z.object({
-  clerkOrgId: z.string(),
   name: z.string(),
   slug: z.string(),
-});
+})
+
+export const getOrganizationByNameSchema = z.object({ name: z.string() })

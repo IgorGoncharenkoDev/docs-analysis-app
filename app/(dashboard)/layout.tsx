@@ -7,9 +7,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  try {
-    await getClerkAuth()
-  } catch {
+  const authResult = await getClerkAuth()
+  if (!authResult.ok) {
     redirect('/sign-in')
   }
 

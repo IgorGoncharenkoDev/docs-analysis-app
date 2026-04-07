@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma'
-import { getOrganizationById } from '@/lib/db/queries/organizations/getOrganizationById'
+import { getOrganizationById } from '@/lib/db/queries/organizations/getOrganization'
 import { AppError } from '@/lib/errors/AppError'
 
 type GetAuthorizedUserForOrgParams = {

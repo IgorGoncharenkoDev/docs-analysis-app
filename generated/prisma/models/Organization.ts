@@ -29,6 +29,7 @@ export type OrganizationMinAggregateOutputType = {
   clerkOrgId: string | null
   name: string | null
   slug: string | null
+  status: $Enums.OrganizationStatus | null
   createdAt: Date | null
 }
 
@@ -37,6 +38,7 @@ export type OrganizationMaxAggregateOutputType = {
   clerkOrgId: string | null
   name: string | null
   slug: string | null
+  status: $Enums.OrganizationStatus | null
   createdAt: Date | null
 }
 
@@ -45,6 +47,7 @@ export type OrganizationCountAggregateOutputType = {
   clerkOrgId: number
   name: number
   slug: number
+  status: number
   createdAt: number
   _all: number
 }
@@ -55,6 +58,7 @@ export type OrganizationMinAggregateInputType = {
   clerkOrgId?: true
   name?: true
   slug?: true
+  status?: true
   createdAt?: true
 }
 
@@ -63,6 +67,7 @@ export type OrganizationMaxAggregateInputType = {
   clerkOrgId?: true
   name?: true
   slug?: true
+  status?: true
   createdAt?: true
 }
 
@@ -71,6 +76,7 @@ export type OrganizationCountAggregateInputType = {
   clerkOrgId?: true
   name?: true
   slug?: true
+  status?: true
   createdAt?: true
   _all?: true
 }
@@ -149,9 +155,10 @@ export type OrganizationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type OrganizationGroupByOutputType = {
   id: string
-  clerkOrgId: string
+  clerkOrgId: string | null
   name: string
   slug: string
+  status: $Enums.OrganizationStatus
   createdAt: Date
   _count: OrganizationCountAggregateOutputType | null
   _min: OrganizationMinAggregateOutputType | null
@@ -178,9 +185,10 @@ export type OrganizationWhereInput = {
   OR?: Prisma.OrganizationWhereInput[]
   NOT?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   id?: Prisma.StringFilter<"Organization"> | string
-  clerkOrgId?: Prisma.StringFilter<"Organization"> | string
+  clerkOrgId?: Prisma.StringNullableFilter<"Organization"> | string | null
   name?: Prisma.StringFilter<"Organization"> | string
   slug?: Prisma.StringFilter<"Organization"> | string
+  status?: Prisma.EnumOrganizationStatusFilter<"Organization"> | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrganizationMemberListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
@@ -188,9 +196,10 @@ export type OrganizationWhereInput = {
 
 export type OrganizationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  clerkOrgId?: Prisma.SortOrder
+  clerkOrgId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   members?: Prisma.OrganizationMemberOrderByRelationAggregateInput
   documents?: Prisma.DocumentOrderByRelationAggregateInput
@@ -199,21 +208,23 @@ export type OrganizationOrderByWithRelationInput = {
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   clerkOrgId?: string
+  name?: string
   slug?: string
   AND?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   OR?: Prisma.OrganizationWhereInput[]
   NOT?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
-  name?: Prisma.StringFilter<"Organization"> | string
+  status?: Prisma.EnumOrganizationStatusFilter<"Organization"> | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrganizationMemberListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
-}, "id" | "clerkOrgId" | "slug">
+}, "id" | "clerkOrgId" | "name" | "slug">
 
 export type OrganizationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  clerkOrgId?: Prisma.SortOrder
+  clerkOrgId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
   _max?: Prisma.OrganizationMaxOrderByAggregateInput
@@ -225,17 +236,19 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   OR?: Prisma.OrganizationScalarWhereWithAggregatesInput[]
   NOT?: Prisma.OrganizationScalarWhereWithAggregatesInput | Prisma.OrganizationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Organization"> | string
-  clerkOrgId?: Prisma.StringWithAggregatesFilter<"Organization"> | string
+  clerkOrgId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Organization"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Organization"> | string
+  status?: Prisma.EnumOrganizationStatusWithAggregatesFilter<"Organization"> | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
 
 export type OrganizationCreateInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
   members?: Prisma.OrganizationMemberCreateNestedManyWithoutOrganizationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutOrganizationInput
@@ -243,9 +256,10 @@ export type OrganizationCreateInput = {
 
 export type OrganizationUncheckedCreateInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
   members?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutOrganizationInput
@@ -253,9 +267,10 @@ export type OrganizationUncheckedCreateInput = {
 
 export type OrganizationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrganizationMemberUpdateManyWithoutOrganizationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutOrganizationNestedInput
@@ -263,9 +278,10 @@ export type OrganizationUpdateInput = {
 
 export type OrganizationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -273,25 +289,28 @@ export type OrganizationUncheckedUpdateInput = {
 
 export type OrganizationCreateManyInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
 }
 
 export type OrganizationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrganizationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -300,6 +319,7 @@ export type OrganizationCountOrderByAggregateInput = {
   clerkOrgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -308,6 +328,7 @@ export type OrganizationMaxOrderByAggregateInput = {
   clerkOrgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -316,12 +337,17 @@ export type OrganizationMinOrderByAggregateInput = {
   clerkOrgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type OrganizationScalarRelationFilter = {
   is?: Prisma.OrganizationWhereInput
   isNot?: Prisma.OrganizationWhereInput
+}
+
+export type EnumOrganizationStatusFieldUpdateOperationsInput = {
+  set?: $Enums.OrganizationStatus
 }
 
 export type OrganizationCreateNestedOneWithoutMembersInput = {
@@ -354,18 +380,20 @@ export type OrganizationUpdateOneRequiredWithoutDocumentsNestedInput = {
 
 export type OrganizationCreateWithoutMembersInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
   documents?: Prisma.DocumentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutMembersInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutOrganizationInput
 }
@@ -388,36 +416,40 @@ export type OrganizationUpdateToOneWithWhereWithoutMembersInput = {
 
 export type OrganizationUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.DocumentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutDocumentsInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
   members?: Prisma.OrganizationMemberCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutDocumentsInput = {
   id?: string
-  clerkOrgId: string
+  clerkOrgId?: string | null
   name: string
   slug: string
+  status?: $Enums.OrganizationStatus
   createdAt?: Date | string
   members?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
 }
@@ -440,18 +472,20 @@ export type OrganizationUpdateToOneWithWhereWithoutDocumentsInput = {
 
 export type OrganizationUpdateWithoutDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrganizationMemberUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkOrgId?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrganizationStatusFieldUpdateOperationsInput | $Enums.OrganizationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
 }
@@ -501,6 +535,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   clerkOrgId?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   documents?: boolean | Prisma.Organization$documentsArgs<ExtArgs>
@@ -512,6 +547,7 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   clerkOrgId?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["organization"]>
 
@@ -520,6 +556,7 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   clerkOrgId?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["organization"]>
 
@@ -528,10 +565,11 @@ export type OrganizationSelectScalar = {
   clerkOrgId?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkOrgId" | "name" | "slug" | "createdAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkOrgId" | "name" | "slug" | "status" | "createdAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   documents?: boolean | Prisma.Organization$documentsArgs<ExtArgs>
@@ -548,9 +586,10 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    clerkOrgId: string
+    clerkOrgId: string | null
     name: string
     slug: string
+    status: $Enums.OrganizationStatus
     createdAt: Date
   }, ExtArgs["result"]["organization"]>
   composites: {}
@@ -981,6 +1020,7 @@ export interface OrganizationFieldRefs {
   readonly clerkOrgId: Prisma.FieldRef<"Organization", 'String'>
   readonly name: Prisma.FieldRef<"Organization", 'String'>
   readonly slug: Prisma.FieldRef<"Organization", 'String'>
+  readonly status: Prisma.FieldRef<"Organization", 'OrganizationStatus'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }
     

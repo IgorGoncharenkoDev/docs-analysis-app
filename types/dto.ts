@@ -11,6 +11,10 @@ export type RegisterOrganizationDTO = OrganizationGetPayload<{
   select: typeof partialOrganizationSelect
 }>
 
+export type GetOrganizationDTO = OrganizationGetPayload<{
+  select: typeof partialOrganizationSelect
+}>
+
 export type DocumentDTO = DocumentGetPayload<{
   select: typeof safeDocumentSelect
 }>
