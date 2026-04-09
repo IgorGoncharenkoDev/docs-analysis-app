@@ -15,6 +15,11 @@ export type GetOrganizationDTO = OrganizationGetPayload<{
   select: typeof partialOrganizationSelect
 }>
 
+export type ValidateOrganizationNameDTO = {
+  nameAvailable: boolean
+  slugAvailable: boolean
+}
+
 export type DocumentDTO = DocumentGetPayload<{
   select: typeof safeDocumentSelect
 }>

@@ -1,9 +1,11 @@
-import { clerkClient } from '@clerk/nextjs/server'
 import { PrismaClientKnownRequestError } from '@prisma/client-runtime-utils'
 import { NextResponse } from 'next/server'
 import slugify from 'slugify'
 
-import { registerOrganizationSchema } from '@/app/api/schemas/organization.schema'
+import {
+  deleteOrganizationSchema,
+  registerOrganizationSchema,
+} from '@/app/api/schemas/organization.schema'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { prisma } from '@/lib/db/prisma'
 import { partialOrganizationSelect } from '@/lib/db/selects/organization.select'
@@ -37,11 +39,10 @@ export async function POST(
 
     if (!validation.success) return validation.response
 
-    const { name, slug } = validation.data
+    const { clerkOrgId, name } = validation.data
 
-    const slugified = slugify(slug, {
+    const slugified = slugify(name, {
       lower: true,
-      replacement: '-',
       strict: true,
       trim: true,
     })
@@ -60,14 +61,18 @@ export async function POST(
       })
     }
 
-    // reserving a new organization in DB (before creating one in Clerk)
-    let organization: { id: string, clerkOrgId: string | null }
+    let organization: {
+      id: string
+      clerkOrgId: string
+      name: string
+      slug: string
+    }
 
     try {
       organization = await prisma.$transaction(async (tx) => {
         // creating a new organization
         const org = await tx.organization.create({
-          data: { name, slug: slugified, status: 'PENDING' },
+          data: { clerkOrgId, name, slug: slugified },
           select: partialOrganizationSelect,
         })
 
@@ -85,8 +90,7 @@ export async function POST(
     } catch (error) {
       // expected failure: unique constraint
       const isUniqueError =
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2002'
+        error instanceof PrismaClientKnownRequestError && error.code === 'P2002'
 
       if (isUniqueError) {
         const target = (error.meta?.target ?? []) as string[]
@@ -104,64 +108,89 @@ export async function POST(
             message: 'Slug is already taken',
           })
         }
+
+        if (target.includes('clerkOrgId')) {
+          throw new AppError({
+            type: 'conflict',
+            message: 'Organization already exists (Clerk mismatch)',
+          })
+        }
       }
 
       throw error
     }
 
-    let clerkOrg
-
-    if (!organization.clerkOrgId) {
-      // creating a new organization in Clerk
-      const cc = await clerkClient()
-
-      try {
-        clerkOrg = await cc.organizations.createOrganization({
-          name,
-          slug: slugified,
-        })
-      } catch (error) {
-        // marking as FAILED (for retry later)
-        await prisma.organization.update({
-          where: { id: organization.id },
-          data: { status: 'FAILED' },
-        })
-
-        console.error('Clerk org creation failed', {
-          orgId: organization.id,
-          error,
-        })
-
-        throw new AppError({
-          type: 'external_error',
-          message: 'Failed to create organization in Clerk',
-        })
-      }
-    }
-
-    if (!clerkOrg?.id) {
-      throw new AppError({
-        type: 'external_error',
-        message: 'Invalid Clerk response',
-      })
-    }
-
-    // finalizing in db
-    const finalized = await prisma.organization.update({
-      where: { id: organization.id },
-      data: {
-        clerkOrgId: clerkOrg.id,
-        status: 'ACTIVE',
-      },
-      select: partialOrganizationSelect,
-    })
-
     return NextResponse.json({
       status: 'success',
-      data: finalized,
+      data: organization,
       message: 'Organization created successfully',
-    })
+    } satisfies ApiResponse<RegisterOrganizationDTO>)
   } catch (error) {
     return handleRouteError(error)
   }
+}
+
+export async function DELETE(
+  req: Request,
+): Promise<NextResponse<ApiResponse<null>>> {
+  const userId = await requireAuth()
+
+  const body = await req.json().catch(() => {
+    throw new AppError({
+      type: 'bad_request',
+      message: 'Invalid JSON body',
+    })
+  })
+
+  const validation = validateRequest({
+    data: body,
+    schema: deleteOrganizationSchema,
+  })
+
+  if (!validation.success) return validation.response
+
+  const { clerkOrgId } = validation.data
+
+  // does org exist in db?
+  const org = await prisma.organization.findUnique({
+    where: { clerkOrgId },
+    include: {
+      members: {
+        include: {
+          user: true,
+        },
+      },
+    }
+  })
+
+  if (!org) {
+    throw new AppError({
+      type: 'not_found',
+      message: 'Organization not found',
+    })
+  }
+
+  // does the user have permission to delete the org?
+  const isOwner = org.members.some(
+    (member) => member.role === 'owner' && member.user.clerkUserId === userId,
+  )
+
+  if (!isOwner) {
+    throw new AppError({
+      type: 'forbidden',
+      message: 'Only organization owner can delete it',
+    })
+  }
+
+  // deleting from DB
+  await prisma.$transaction([
+    prisma.organizationMember.deleteMany({ where: { organizationId: org.id } }),
+    prisma.organization.delete({ where: { id: org.id } }),
+  ])
+
+  return NextResponse.json({
+    status: 'success',
+    data: null,
+    message: 'Organization deleted successfully',
+  })
 }

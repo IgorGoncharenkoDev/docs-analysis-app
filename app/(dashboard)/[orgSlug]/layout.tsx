@@ -20,8 +20,6 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
   const organization = await getOrganizationBySlug(orgSlug)
   if (!organization) redirect('/select-org')
 
-  // TODO i |> continue here...
-
   return (
     <>
       <SyncOrgClient orgSlug={orgSlug} />

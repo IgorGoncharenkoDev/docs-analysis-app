@@ -4,6 +4,8 @@ import {
   GetOrganizationByNameReturn,
   PostOrganizationParams,
   PostOrganizationReturn,
+  ValidateOrganizationNameParams,
+  ValidateOrganizationNameReturn,
 } from '@/lib/apiClient/types'
 import {
   ApiClientResult,
@@ -16,18 +18,40 @@ export const apiClient = {
   analyze: {},
   documents: {},
   organizations: {
-    getByName: async ({ name }: GetOrganizationByNameParams): Promise<GetOrganizationByNameReturn> => apiRequest(`/organizations/by-name/${name}`),
+    getByName: async ({
+      name,
+    }: GetOrganizationByNameParams): Promise<GetOrganizationByNameReturn> =>
+      apiRequest(`/organizations/by-name/${name}`),
     post: async ({
       name,
       slug,
+      clerkOrgId,
     }: PostOrganizationParams): PostOrganizationReturn =>
       apiRequest('/organizations', {
         method: 'POST',
         body: JSON.stringify({
           name,
           slug,
+          clerkOrgId,
         }),
       }),
+    validateName: async ({
+      excludeId,
+      name,
+      slug,
+    }: ValidateOrganizationNameParams): ValidateOrganizationNameReturn =>
+      apiRequest('/organizations/validate-name', {
+        method: 'POST',
+        body: JSON.stringify({
+          excludeId,
+          name,
+          slug,
+        }),
+      }),
+    delete: async (clerkOrgId: string) => apiRequest(`/organizations`, {
+      method: 'DELETE',
+      body: JSON.stringify({ clerkOrgId }),
+    }),
   },
 }
 

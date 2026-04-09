@@ -4,6 +4,7 @@ import { useOrganizationList, useUser } from '@clerk/nextjs'
 import { ArrowRight, Building, Copy, Loader2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import slugify from 'slugify'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -79,34 +80,80 @@ export default function SelectOrgPage() {
   }
 
   const handleCreateOrganization = async () => {
-    if (!isOrganizationListLoaded) return
+    if (!isOrganizationListLoaded) {
+      toast.error('Organization creation is not available at this time.')
+      throw new Error('Organization creation is not available at this time.')
+    }
 
     if (!orgName.trim()) {
       toast.error('Organization name is required')
       return
     }
+
     setIsCreating(true)
 
+    const slugified = slugify(orgName, {
+      lower: true,
+      strict: true,
+      trim: true,
+    })
+
     try {
-      const result = unwrapApiResult(
-        await apiClient.organizations.post({
+      // checking if an organization with given name and slug exists in db
+      const validateResult = unwrapApiResult(
+        await apiClient.organizations.validateName({
           name: orgName.trim(),
-          slug: orgName
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
+          slug: slugified,
         }),
       )
 
-      if (!result.ok) {
-        throw new Error(result.error || 'Failed to save organization to database')
+      if (!validateResult.ok) {
+        toast.error(validateResult.error || 'Failed to validate organization name')
+        return
       }
 
-      const newOrganization = result.data
+      const organizationNameValidated =
+        validateResult.data.nameAvailable && validateResult.data.slugAvailable
+
+      if (!organizationNameValidated) {
+        toast.error('Organization name or slug is already in use')
+        return
+      }
+
+      // create a new organization in clerk
+      const clerkOrg = await createOrganization({
+        name: orgName.trim(),
+        slug: slugified,
+      })
+
+      try {
+        const postResult = unwrapApiResult(
+          await apiClient.organizations.post({
+            name: orgName.trim(),
+            slug: slugified,
+            clerkOrgId: clerkOrg.id,
+          }),
+        )
+
+        if (!postResult.ok) {
+          toast.error(postResult.error || 'Failed to save organization to database')
+          return
+        }
+      } catch (error) {
+        // rollback Clerk org if DB failed
+        if (clerkOrg?.id) {
+          try {
+            await apiClient.organizations.delete(clerkOrg.id)
+          } catch (rollbackError) {
+            console.error('Rollback failed:', rollbackError)
+          }
+        }
+
+        throw error
+      }
 
       // set new org as active org
-      await setActive({ organization: newOrganization.id })
+      await setActive({ organization: clerkOrg.id })
 
       toast.success(`Organization ${orgName.trim()} created successfully`)
       setOrgName('')
@@ -115,7 +162,12 @@ export default function SelectOrgPage() {
       router.refresh()
     } catch (error) {
       console.error('Error creating organization:', error)
-      toast.error('Failed to create organization')
+
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error('Failed to create organization')
+      }
     } finally {
       setIsCreating(false)
     }
