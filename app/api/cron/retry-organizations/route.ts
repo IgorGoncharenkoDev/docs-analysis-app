@@ -2,6 +2,7 @@ import { clerkClient } from '@clerk/nextjs/server'
 
 import { prisma } from '@/lib/db/prisma'
 
+// this handler is outdated, it stays here for demo purposes
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization')
 
