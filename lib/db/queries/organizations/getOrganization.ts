@@ -1,3 +1,4 @@
+import { OrganizationGetPayload,OrganizationInclude } from '@/generated/prisma/models/Organization'
 import { prisma } from '@/lib/db/prisma'
 
 export async function getOrganizationById({
@@ -10,10 +11,17 @@ export async function getOrganizationById({
   })
 }
 
-export async function getOrganizationBySlug(slug: string) {
+export async function getOrganizationBySlug<
+  T extends OrganizationInclude | undefined
+>({ slug, include }: { slug: string, include?: T }) {
   return prisma.organization.findUnique({
     where: { slug },
-  })
+    ...(include && { include }),
+  }) as Promise<
+    OrganizationGetPayload<{
+      include: T
+    }> | null
+  >
 }
 
 export async function getOrganizationByName(name: string) {

@@ -18,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { apiClient, unwrapApiResult } from '@/lib/apiClient'
 import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
-import { RegisterOrganizationDTO } from '@/types/dto'
 
 export default function SelectOrgPage() {
   const router = useRouter()
