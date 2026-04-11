@@ -9,11 +9,15 @@ export async function apiRequest<TResponse>(
 ): Promise<ClientResult<TResponse>> {
   const url = `${API_BASE_URL}/api${path}`
 
+  const isFormData = options.body instanceof FormData
+
   const config: RequestInit = {
     ...options,
     method: options.method ?? 'GET',
     headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(!isFormData && options.body
+        ? { 'Content-Type': 'application/json' }
+        : {}),
       ...(options.headers ?? {}),
     },
   }

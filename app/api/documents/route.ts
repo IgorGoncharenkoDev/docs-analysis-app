@@ -4,6 +4,7 @@ import {
   createDocumentSchema,
   getDocumentsSchema,
 } from '@/app/api/schemas/document.schema'
+import { GetDocumentsReturn } from '@/lib/apiClient/types'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { deleteFromBlob } from '@/lib/blob/blob'
 import { processFileUpload } from '@/lib/blob/uploadFile'
@@ -97,15 +98,6 @@ export async function POST(
   }
 }
 
-type GetDocumentsReturn = {
-  documents: GetDocumentDTO[]
-  documentsCount: number
-  organization: {
-    id: string
-    name: string
-  }
-}
-
 export async function GET(
   req: NextRequest,
 ): Promise<NextResponse<ApiResponse<GetDocumentsReturn | null>>> {
@@ -135,6 +127,7 @@ export async function GET(
       organizationId: organization.clerkOrgId,
     })
 
+    // TODO i |> fix the typing...
     return NextResponse.json({
       status: 'success',
       data: {

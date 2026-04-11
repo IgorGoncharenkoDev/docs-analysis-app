@@ -19,8 +19,8 @@ export async function uploadToBlob({
     const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`
     const pathName = `org-${organizationId}/user-${userId}/${fileName}`
     const blob = await put(pathName, file, {
-      access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      access: 'private',
+      token: process.env.BLOB_READ_WRITE_TOKEN!,
     })
 
     return {

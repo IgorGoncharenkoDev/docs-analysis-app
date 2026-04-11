@@ -7,7 +7,7 @@ export const createDocumentSchema = z
   .object({
     name: z.string().min(1).trim(),
     content: z.string().min(1).optional(),
-    clerkOrgId: z.cuid(),
+    clerkOrgId: z.string(),
     file: z
       .file()
       .refine((file) => file.size <= MAX_SIZE, {

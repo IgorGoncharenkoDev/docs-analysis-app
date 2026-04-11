@@ -1,7 +1,11 @@
 import { apiRequest } from '@/lib/apiClient/apiRequest'
 import {
+  GetDocumentsParams,
+  GetDocumentsReturn,
   GetOrganizationByNameParams,
   GetOrganizationByNameReturn,
+  PostDocumentParams,
+  PostDocumentReturn,
   PostOrganizationParams,
   PostOrganizationReturn,
   ValidateOrganizationNameParams,
@@ -16,7 +20,12 @@ import {
 
 export const apiClient = {
   analyze: {},
-  documents: {},
+  documents: {
+    get: async ({ organizationId }: GetDocumentsParams): GetDocumentsReturn =>
+      apiRequest(`/api/documents/?organizationId=${organizationId}`),
+    post: async (formData: PostDocumentParams): PostDocumentReturn =>
+      apiRequest('/documents', { method: 'POST', body: formData }),
+  },
   organizations: {
     getByName: async ({
       name,
@@ -48,10 +57,11 @@ export const apiClient = {
           slug,
         }),
       }),
-    delete: async (clerkOrgId: string) => apiRequest(`/organizations`, {
-      method: 'DELETE',
-      body: JSON.stringify({ clerkOrgId }),
-    }),
+    delete: async (clerkOrgId: string) =>
+      apiRequest(`/organizations`, {
+        method: 'DELETE',
+        body: JSON.stringify({ clerkOrgId }),
+      }),
   },
 }
 
