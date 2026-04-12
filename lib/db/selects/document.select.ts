@@ -11,8 +11,15 @@ export const safeDocumentSelect = {
 
 export const documentForOrganizationSelect = {
   select: {
+    id: true,
     name: true,
+    aiSummary: true,
+    aiKeywords: true,
+    fileSize: true,
+    fileUrl: true,
     content: true,
+    sentiment: true,
+    createdAt: true,
     user: {
       select: {
         name: true,

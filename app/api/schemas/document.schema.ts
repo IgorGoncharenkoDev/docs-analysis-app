@@ -27,4 +27,4 @@ export const deleteDocumentSchema = z.object({
   documentId: z.cuid(),
 })
 
-export const getDocumentsSchema = z.object({ organizationId: z.cuid() })
+export const getDocumentsSchema = z.object({ organizationId: z.string() })

@@ -38,3 +38,12 @@ export type CreateDocumentDTO = {
 }
 
 export type GetDocumentDTO = DocumentGetPayload<typeof documentForOrganizationSelect>
+
+export type GetDocumentsDTO = {
+  documents: GetDocumentDTO[]
+  documentsCount: number
+  organization: {
+    id: string
+    name: string
+  }
+}

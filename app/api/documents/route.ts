@@ -4,7 +4,6 @@ import {
   createDocumentSchema,
   getDocumentsSchema,
 } from '@/app/api/schemas/document.schema'
-import { GetDocumentsReturn } from '@/lib/apiClient/types'
 import { requireAuth } from '@/lib/auth/requireAuth'
 import { deleteFromBlob } from '@/lib/blob/blob'
 import { processFileUpload } from '@/lib/blob/uploadFile'
@@ -17,7 +16,7 @@ import { parseFormData } from '@/lib/validation/parseFormData'
 import { validateRequest } from '@/lib/validation/validateRequest'
 import { ApiResponse } from '@/types/api'
 import { DocumentFileData } from '@/types/document'
-import { CreateDocumentDTO, GetDocumentDTO } from '@/types/dto'
+import { CreateDocumentDTO, GetDocumentsDTO } from '@/types/dto'
 
 export async function POST(
   req: Request,
@@ -100,7 +99,7 @@ export async function POST(
 
 export async function GET(
   req: NextRequest,
-): Promise<NextResponse<ApiResponse<GetDocumentsReturn | null>>> {
+): Promise<NextResponse<ApiResponse<GetDocumentsDTO | null>>> {
   try {
     const userId = await requireAuth()
 
@@ -123,11 +122,10 @@ export async function GET(
     })
 
     const documents = await getDocumentsForOrganization({
-      clerkUserId: user.id,
-      organizationId: organization.clerkOrgId,
+      userId: user.id,
+      organizationId: organization.id,
     })
 
-    // TODO i |> fix the typing...
     return NextResponse.json({
       status: 'success',
       data: {
@@ -138,7 +136,7 @@ export async function GET(
           name: organization.name,
         },
       },
-    })
+    } satisfies ApiResponse<GetDocumentsDTO>)
   } catch (error) {
     return handleRouteError(error)
   }

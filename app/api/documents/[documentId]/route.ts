@@ -24,7 +24,7 @@ export async function DELETE(
   try {
     const userId = await requireAuth()
     
-    const { documentId } = params
+    const { documentId } = await params
 
     const validation = validateRequest({
       data: { documentId },
@@ -50,7 +50,7 @@ export async function DELETE(
 
     // delete the file from db (before deleting the file from blob to avoid race conditions)
     await prisma.document.delete({
-      where: { id: document.id }, // using trusted 'id' from DB, not 'documentId' from the request
+      where: { id: document.id }, // using trusted 'id' from DB, not '[documentId]' from the request
     })
 
     // delete the file from Vercel blob if it exists

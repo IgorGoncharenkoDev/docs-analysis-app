@@ -8,6 +8,10 @@ import {
   PostDocumentReturn,
   PostOrganizationParams,
   PostOrganizationReturn,
+  DeleteDocumentParams,
+  DeleteDocumentReturn,
+  PostAnalyzeDocumentParams,
+  PostAnalyzeDocumentReturn,
   ValidateOrganizationNameParams,
   ValidateOrganizationNameReturn,
 } from '@/lib/apiClient/types'
@@ -19,12 +23,30 @@ import {
 } from '@/types/api'
 
 export const apiClient = {
-  analyze: {},
+  analyze: {
+    post: async ({
+      analysisType,
+      documentId,
+      organizationClerkId,
+    }: PostAnalyzeDocumentParams): PostAnalyzeDocumentReturn =>
+      apiRequest('/analyze', {
+        method: 'POST',
+        body: JSON.stringify({
+          analysisType,
+          documentId,
+          organizationClerkId,
+        }),
+      }),
+  },
   documents: {
     get: async ({ organizationId }: GetDocumentsParams): GetDocumentsReturn =>
-      apiRequest(`/api/documents/?organizationId=${organizationId}`),
+      apiRequest(`/documents/?organizationId=${organizationId}`),
     post: async (formData: PostDocumentParams): PostDocumentReturn =>
       apiRequest('/documents', { method: 'POST', body: formData }),
+    delete: async ({
+      documentId,
+    }: DeleteDocumentParams): DeleteDocumentReturn =>
+      apiRequest(`/documents/${documentId}`, { method: 'DELETE' }),
   },
   organizations: {
     getByName: async ({

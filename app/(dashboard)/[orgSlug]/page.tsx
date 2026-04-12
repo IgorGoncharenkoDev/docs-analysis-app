@@ -157,9 +157,11 @@ export default async function OrgPage({ params }: OrgPageProps) {
                   {doc.aiSummary ? (
                     <Brain className="h-5 w-5 text-green-500" />
                   ) : (
-                    <Button size="sm" variant="outline">
-                      Analyze
-                    </Button>
+                    <Link href={`/${ orgSlug }/documents`}>
+                      <Button size="sm" variant="outline">
+                        Analyze
+                      </Button>
+                    </Link>
                   )}
                 </div>
               ))}

@@ -1,6 +1,8 @@
 'use client'
 import { useOrganization } from '@clerk/nextjs'
 import { FileText, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { DocumentCard } from '@/components/document/document-card'
 import { DocumentUploadDialog } from '@/components/document/document-upload-dialog'
@@ -11,29 +13,84 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { formatFileSize } from '@/lib/data/data'
+import { apiClient, unwrapApiResult } from '@/lib/apiClient'
+import { analysisTypes, formatFileSize } from '@/lib/data/data'
 import { useDocuments } from '@/lib/hooks/useDocuments'
+import { AnalysisType } from '@/types'
 
 export default function DocumentsPage() {
   const { organization } = useOrganization()
+  const { documents, loadingDocuments, refetchDocuments } = useDocuments()
 
-  const { documents, loadingDocuments } = useDocuments()
+  const [analyzing, setAnalyzing] = useState<string | null>(null)
+  const [selectedAnalysisType, setSelectedAnalysisType] = useState<AnalysisType>('summary')
+  const [expandedSummary, setExpandedSummary] = useState<Set<string>>(new Set())
 
-  const toggleSummary = (documentId: string) => {}
+  const toggleSummary = (documentId: string) => {
+    setExpandedSummary((prev) => {
+      const next = new Set(prev)
+
+      if (next.has(documentId)) {
+        next.delete(documentId)
+      } else {
+        next.add(documentId)
+      }
+
+      return next
+    })
+  }
 
   const handleAnalyze = async (documentId: string) => {
+    if (!organization) return
+
+    setAnalyzing(documentId)
+
     try {
-    } catch (error) {}
+      const postAnalysisResult = unwrapApiResult(await apiClient.analyze.post({
+        documentId,
+        analysisType: selectedAnalysisType,
+        organizationClerkId: organization.id
+      }))
+
+      if (!postAnalysisResult.ok) {
+        toast.error(`Failed to analyze document: ${postAnalysisResult.error || 'Unknown error'}`)
+        return
+      }
+
+      const analysisTypeLabel = analysisTypes.find(type => type.value === selectedAnalysisType)?.label || 'Document'
+
+      toast.success(`${analysisTypeLabel} analysis completed successfully`)
+      await refetchDocuments()
+      setExpandedSummary(prev => new Set(prev).add(documentId))
+    } catch (error) {
+      console.error('Error analyzing document:', error)
+      toast.error('Failed to analyze document')
+    } finally {
+      setAnalyzing(null)
+    }
   }
 
   const handleDelete = async (documentId: string) => {
     try {
-    } catch (error) {}
+      const deleteResult = unwrapApiResult(
+        await apiClient.documents.delete({ documentId }),
+      )
+
+      if (!deleteResult.ok) {
+        toast.error(`Failed to delete document: ${deleteResult.error || 'Unknown error'}`)
+        return
+      }
+
+      toast.success('Document deleted successfully')
+      await refetchDocuments()
+    } catch (error) {
+      console.error('Error deleting document:', error)
+      toast.error('Failed to delete document')
+    }
   }
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Documents</h1>
@@ -41,7 +98,7 @@ export default function DocumentsPage() {
             Upload and analyze documents in {organization?.name}
           </p>
         </div>
-        <DocumentUploadDialog />
+        <DocumentUploadDialog onUploadSuccess={refetchDocuments} />
       </div>
 
       {!!documents.length && !loadingDocuments && (
@@ -58,7 +115,7 @@ export default function DocumentsPage() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">
-                  {documents.fiter((doc) => doc.aiSummary).length}
+                  {documents.filter((doc) => doc.aiSummary).length}
                 </div>
                 <p className="text-sm text-gray-500">Analyzed</p>
               </div>
@@ -114,15 +171,15 @@ export default function DocumentsPage() {
             <div className="space-y-6">
               {documents.map((doc) => (
                 <DocumentCard
-                  key={doc.id}
+                  analyzing={analyzing === doc.id}
                   document={doc}
-                  // isAnalyzing={isAnalyzing === doc.id}
-                  // selectedAnalysisType={selectedAnalysisType}
-                  // onAnalysisTypeChange={setSelectedAnalysisType}
+                  expandedSummary={expandedSummary}
+                  key={doc.id}
+                  selectedAnalysisType={selectedAnalysisType}
+                  onAnalysisTypeChange={setSelectedAnalysisType}
                   onAnalyze={handleAnalyze}
                   onDelete={handleDelete}
                   onToggleSummary={toggleSummary}
-                  // expandedSummaries={expandedSummaries}
                 />
               ))}
             </div>

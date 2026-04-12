@@ -19,10 +19,8 @@ import { Input } from '@/components/ui/input'
 import { apiClient, unwrapApiResult } from '@/lib/apiClient'
 import { allowedTypes } from '@/lib/data/data'
 
-// TODO i |>
-//  Props must be serializable for components in the "use client" entry file
 type DocumentUploadDialogProps = {
-  onUploadSuccess?: () => void
+  onUploadSuccess?: () => (Promise<void> | void)
   trigger?: React.ReactNode
 }
 

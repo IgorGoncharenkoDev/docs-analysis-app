@@ -3,7 +3,7 @@ import { documentForOrganizationSelect } from '@/lib/db/selects/document.select'
 import { GetDocumentDTO } from '@/types/dto'
 
 type Params = {
-  clerkUserId: string
+  userId: string
   organizationId: string
   filters?: {
     page: number
@@ -12,17 +12,14 @@ type Params = {
 }
 
 export async function getDocumentsForOrganization({
-  clerkUserId,
+  userId,
   organizationId,
   filters,
 }: Params): Promise<GetDocumentDTO[]> {
   // const defaultFilters = { limit: 20, page: 1 }
 
   return prisma.document.findMany({
-    where: {
-      organizationId,
-      userId: clerkUserId,
-    },
+    where: { organizationId, userId },
     ...documentForOrganizationSelect,
     ...(filters && {
       skip: (filters.page - 1) * filters.limit,
